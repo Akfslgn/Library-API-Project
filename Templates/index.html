@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Library API Documentation</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 40px;
+      }
+      h1,
+      h2 {
+        color: #333;
+      }
+      code {
+        background-color: #f4f4f4;
+        padding: 2px 5px;
+        border-radius: 4px;
+      }
+      .endpoint {
+        margin-bottom: 20px;
+      }
+      .book-list {
+        margin-top: 40px;
+      }
+      .book {
+        margin-bottom: 20px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Library API Documentation</h1>
+    <p>
+      Welcome to the Library Management API. Below are the available endpoints
+      and their usage.
+    </p>
+
+    <div class="endpoint">
+      <h2>GET /api/books</h2>
+      <p>Returns a list of all books in the library.</p>
+      <pre><code>curl -X GET http://127.0.0.1:5000/api/books</code></pre>
+    </div>
+
+    <div class="endpoint">
+      <h2>GET /api/books/:book_id</h2>
+      <p>Returns details of a specific book.</p>
+      <pre><code>curl -X GET http://127.0.0.1:5000/api/books/1</code></pre>
+    </div>
+
+    <div class="endpoint">
+      <h2>POST /api/books</h2>
+      <p>
+        Adds a new book to the library. Required fields: <code>title</code>,
+        <code>author</code>, <code>publication_year</code>, <code>genre</code>,
+        <code>read_status</code>, <code>rating</code>, <code>notes</code>.
+      </p>
+      <pre><code>curl -X POST http://127.0.0.1:5000/api/books \
+     -H "Content-Type: application/json" \
+     -d '{"title": "Book Title", "author": "Author Name", "publication_year": 2020, "genre": "Fiction", "read_status": "to-read", "rating": 4.5, "notes": "Great book!"}'</code></pre>
+    </div>
+
+    <div class="endpoint">
+      <h2>PUT /api/books/:book_id</h2>
+      <p>Updates an existing book.</p>
+      <pre><code>curl -X PUT http://127.0.0.1:5000/api/books/1 \
+     -H "Content-Type: application/json" \
+     -d '{"title": "Updated Title", "author": "Updated Author"}'</code></pre>
+    </div>
+
+    <div class="endpoint">
+      <h2>DELETE /api/books/:book_id</h2>
+      <p>Removes a book from the library.</p>
+      <pre><code>curl -X DELETE http://127.0.0.1:5000/api/books/1</code></pre>
+    </div>
+
+    <div class="endpoint">
+      <h2>GET /api/books/stats</h2>
+      <p>Returns statistics about the library.</p>
+      <pre><code>curl -X GET http://127.0.0.1:5000/api/books/stats</code></pre>
+    </div>
+
+    <div class="book-list">
+      <h2>Books in the Library</h2>
+      {% for book in books %}
+      <div class="book">
+        <h3>{{ book.title }}</h3>
+        <p><strong>Author:</strong> {{ book.author }}</p>
+        <p><strong>Publication Year:</strong> {{ book.publication_year }}</p>
+        <p><strong>Genre:</strong> {{ book.genre }}</p>
+        <p><strong>Read Status:</strong> {{ book.read_status }}</p>
+        <p><strong>Rating:</strong> {{ book.rating }}</p>
+        <p><strong>Notes:</strong> {{ book.notes }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </body>
+</html>
