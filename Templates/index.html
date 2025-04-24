@@ -85,7 +85,7 @@
 
     <div class="book-list">
       <h2>Books in the Library</h2>
-      {% for book in books %}
+      {% if books %} {% for book in books %}
       <div class="book">
         <h3>{{ book.title }}</h3>
         <p><strong>Author:</strong> {{ book.author }}</p>
@@ -95,7 +95,32 @@
         <p><strong>Rating:</strong> {{ book.rating }}</p>
         <p><strong>Notes:</strong> {{ book.notes }}</p>
       </div>
-      {% endfor %}
+      {% endfor %} {% else %}
+      <p>No books available in the library.</p>
+      {% endif %}
+    </div>
+
+    <div>
+      <h2>Books Statistics</h2>
+      {% if stats %}
+      <p><strong>Total Books:</strong> {{ stats.total_books }}</p>
+      <p><strong>Books Read:</strong> {{ stats.books_read }}</p>
+      <p><strong>Books Not Read:</strong> {{ stats.books_not_read }}</p>
+      <p><strong>Average Rating:</strong> {{ stats.average_rating }}</p>
+      <p><strong>Most Popular Genre:</strong> {{ stats.most_popular_genre }}</p>
+      <p>
+        <strong>Highest-Rated Book:</strong> {{ stats.highest_rated_book.title
+        }} by {{ stats.highest_rated_book.author }} (Rating: {{
+        stats.highest_rated_book.rating }})
+      </p>
+      <p>
+        <strong>Most Recently Added Book:</strong> {{
+        stats.most_recent_book.title }} by {{ stats.most_recent_book.author }}
+        (Added on: {{ stats.most_recent_book.added_date }})
+      </p>
+      {% else %}
+      <p>No statistics available.</p>
+      {% endif %}
     </div>
   </body>
 </html>
