@@ -3,8 +3,8 @@ from datetime import datetime
 
 
 class Book:
-    def __init__(self, sku, title, author, publication_year, genre, read_status, rating, notes):
-        self.sku = sku  # Automatically generate a unique SKU
+    def __init__(self, sku, title, author, publication_year, genre, read_status, rating, notes, uuid=None, created_at=None, **kwargs):
+        self.sku = sku
         self.title = title
         self.author = author
         self.publication_year = publication_year
@@ -12,9 +12,9 @@ class Book:
         self.read_status = read_status
         self.rating = rating
         self.notes = notes
-        self.created_at = datetime.now()
+        self.created_at = created_at if created_at else datetime.now()
         self.updated_at = datetime.now()
-        self.uuid = str(uuid4())
+        self.uuid = uuid if uuid else str(uuid4())
 
     def update_book(self, title, author, publication_year, genre, read_status, rating, notes):
         self.title = title
