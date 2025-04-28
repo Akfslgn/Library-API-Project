@@ -1,28 +1,32 @@
-from db import book_data
 from models.book_model import Book
 from utils.validator import validate_book_data
 from datetime import datetime
+from repositories.book_repository import BookRepository
 
 
 class BookService:
     @staticmethod
     def get_all_books():
-        return book_data
+
+        books = BookRepository.get_all_books()
+        if not books:
+            return []
+
+        return [Book(**b) for b in books]
 
     @staticmethod
-    def get_book_by_id(sku: str):
-        for book in book_data:
-            if book.sku == sku:
-                return book
-        return None
+    def get_book_by_id(sku):
+        book = BookRepository.get_book_by_id(sku)
+        if not book:
+            return None
+        return Book(**book) if book else None
 
     @staticmethod
     def create_book(data: dict):
-        is_valid, error = validate_book_data(data)
-        if not is_valid:
+        error = validate_book_data(data)
+        if error:
             raise ValueError(error)
 
-        # Create a new book instance
         new_book = Book(
             sku=data.get("sku"),
             title=data.get("title"),
@@ -33,28 +37,45 @@ class BookService:
             rating=data.get("rating"),
             notes=data.get("notes"),
         )
-        book_data.append(new_book)
-        return new_book
+
+        created_book = BookRepository.create_book(new_book)
+        if not created_book or not isinstance(created_book, dict):
+            raise ValueError("Failed to create book in the database")
+
+        return [Book(**b) for b in BookRepository.get_all_books()]
 
     @staticmethod
     def delete_book(sku):
-        for book in book_data:
-            if book.sku == sku:
-                book_data.remove(book)
-                return True
-        return False
+        deleted = BookRepository.delete_book(sku)
+        if not deleted:
+            raise ValueError(
+                f"Book with SKU {sku} not found or could not be deleted.")
+
+        # Fetch all books after deletion
+        books = BookRepository.get_all_books()
+        return True, [Book(**b) for b in books]
 
     @staticmethod
-    def update_book(sku, title, author, publication_year, genre, read_status, rating, notes):
-        for book in book_data:
-            if book.sku == sku:
-                book.title = title
-                book.author = author
-                book.publication_year = publication_year
-                book.genre = genre
-                book.read_status = read_status
-                book.rating = rating
-                book.notes = notes
-                book.updated_at = datetime.now()
-                return True
-        return False
+    def update_book(original_sku, data: dict):
+        error = validate_book_data(data)
+        if error:
+            raise ValueError(error)
+
+        updated = BookRepository.update_book(
+            original_sku,
+            data["sku"],
+            data["title"],
+            data["author"],
+            data["publication_year"],
+            data["genre"],
+            data["read_status"],
+            data["rating"],
+            data["notes"]
+        )
+
+        if not updated:
+            raise ValueError(
+                f"Book with SKU {original_sku} not found or could not be updated.")
+
+        books = BookRepository.get_all_books()
+        return True, [Book(**b) for b in books]

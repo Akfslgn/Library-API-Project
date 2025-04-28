@@ -29,19 +29,19 @@ def add_book():
     data = request.json
 
     if not data:
-        return jsonify({"error": "No data provided"}), 400
+        return jsonify({"error": "Payload cannot be empty"}), 400
 
     try:
-        book = BookService.create_book(data)
+        books = BookService.create_book(data)
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
 
-    if not book:
-        return jsonify({"error": "Failed to create book"}), 400
+    if not books or not isinstance(books, list):
+        return jsonify({"error": "Unexpected error occurred while creating the book"}), 500
 
     response = {
-        "message": "Book added successfully",
-        "book": book.to_dict()  # Correctly return the newly added book
+        "message": "Book created successfully",
+        "books": [book.to_dict() for book in books]
     }
     return jsonify(response), 201
 
@@ -51,38 +51,42 @@ def delete_book(sku):
     """
     Delete a book by SKU.
     """
-    if not BookService.delete_book(sku):
-        return jsonify({"error": "Book not found"}), 404
+    try:
+        deleted, books = BookService.delete_book(sku)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 404
+    except Exception as e:
+        return jsonify({"error": "An unexpected error occurred"}), 500
 
     response = {
         "message": f"Book with SKU {sku} deleted successfully",
-        "books": [book.to_dict() for book in BookService.get_all_books()]
+        "books": [book.to_dict() for book in books]
     }
     return jsonify(response), 200
 
 
 @book_bp.route("/books/<string:sku>", methods=["PUT"])
 def update_book(sku):
+    """
+    Update a book by SKU.
+    """
     data = request.json
 
     if not data:
         return jsonify({"error": "No data provided"}), 400
 
     try:
-        book = BookService.get_book_by_id(sku)
+        updated, books = BookService.update_book(sku, data)
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": "An unexpected error occurred"}), 500
 
-    if not book:
-        return jsonify({"error": "Book not found"}), 404
-
-    try:
-        book.update_book(data["title"], data["author"], data["publication_year"],
-                         data["genre"], data["read_status"], data["rating"], data["notes"])
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 400
-
-    return jsonify({"message": "Book updated successfully", "book": book.to_dict()}), 200
+    response = {
+        "message": f"Book with SKU {sku} updated successfully",
+        "books": [book.to_dict() for book in books]
+    }
+    return jsonify(response), 200
 
 
 @book_bp.route("/books/stats", methods=["GET"])
